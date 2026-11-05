@@ -1,0 +1,17 @@
+{
+  "name": "telegram-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@distube/ytdl-core": "^4.14.4",
+    "telegraf": "^4.16.3",
+    "yt-search": "^2.12.1"
+  }
+}

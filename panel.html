@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Panel Bot · Zan</title>
+<style>
+  :root{--bg:#f3f5fb;--bg2:#e9eefb;--card:#ffffff;--line:#e4e8f3;--txt:#161d2e;--muted:#6a7389;--acc:#4f6cff;--acc2:#8a5cff;--acc-txt:#ffffff;--good:#16a34a;--bad:#e5484d;--warn:#d97706;--soft:#f1f4fb;--shadow:0 1px 2px rgba(16,24,50,.05),0 8px 24px rgba(16,24,50,.06)}
+  :root[data-theme="dark"]{--bg:#0b0e15;--bg2:#121725;--card:#151a26;--line:#243047;--txt:#eef2fb;--muted:#8d97ad;--acc:#7b93ff;--acc2:#b08cff;--acc-txt:#0b0e15;--good:#3ddc97;--bad:#ff6b6b;--warn:#ffc266;--soft:#1b2232;--shadow:0 8px 28px rgba(0,0,0,.35)}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--txt)}
+  body{font:15px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:radial-gradient(1200px 500px at 10% -10%,var(--bg2),transparent),var(--bg);padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+  .wrap{max-width:780px;margin:0 auto;padding:18px 16px 24px;animation:fade .45s ease both}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;color:#fff;font-weight:800;font-size:18px;box-shadow:var(--shadow)}
+  h1{font-size:19px;margin:0;font-weight:800;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:13px}
+  .pill{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13px;font-weight:700;box-shadow:var(--shadow)}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--muted);display:inline-block;position:relative}
+  .dot.on{background:var(--good)} .dot.off{background:var(--bad)}
+  .dot.on::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--good);opacity:0;animation:ping 1.8s ease-out infinite}
+  @keyframes ping{0%{transform:scale(.6);opacity:.7}100%{transform:scale(1.6);opacity:0}}
+  .iconbtn{width:auto;padding:8px 12px;font-size:16px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(min-width:640px){.grid{grid-template-columns:repeat(3,1fr)}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow);margin-bottom:12px;transition:transform .2s ease,box-shadow .2s ease}
+  .card:hover{transform:translateY(-1px)}
+  .kpi{position:relative;overflow:hidden}
+  .kpi::before{content:"";position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));opacity:.12}
+  .kpi .lbl{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+  .kpi .val{font-size:22px;font-weight:800;margin-top:4px;word-break:break-word;letter-spacing:-.01em}
+  .kpi .hint{color:var(--muted);font-size:12px;margin-top:2px}
+  .title{font-size:14px;font-weight:800;margin:0 0 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .row:last-child{border-bottom:none}
+  .row span:first-child{color:var(--muted)}
+  .row b{font-weight:700}
+  .bar{height:7px;background:var(--soft);border-radius:6px;overflow:hidden;margin-top:6px}
+  .bar b{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .6s cubic-bezier(.2,.8,.2,1)}
+  .addr{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .addr code{font:600 14px ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--soft);padding:8px 12px;border-radius:10px;word-break:break-all}
+  .feed{font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);white-space:pre-wrap;max-height:200px;overflow:auto;background:var(--soft);border-radius:12px;padding:12px}
+  input,textarea{width:100%;background:var(--soft);border:1px solid var(--line);border-radius:12px;color:var(--txt);padding:11px 13px;margin-bottom:10px;font:inherit;outline:none;transition:border-color .2s,box-shadow .2s}
+  input:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 18%,transparent)}
+  textarea{resize:vertical;min-height:76px}
+  button{font:inherit;border:none;border-radius:12px;padding:11px 14px;font-weight:700;cursor:pointer;width:100%;background:var(--soft);color:var(--txt);transition:transform .12s ease,filter .2s ease,opacity .2s}
+  button:hover{filter:brightness(1.03)}
+  button:active{transform:scale(.98)}
+  button:disabled{opacity:.5;cursor:default}
+  .btn-acc{background:linear-gradient(135deg,var(--acc),var(--acc2));color:var(--acc-txt);box-shadow:0 8px 20px color-mix(in srgb,var(--acc) 30%,transparent)}
+  .btn-bad{background:var(--bad);color:#fff}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .hint{color:var(--muted);font-size:12px;margin-top:4px}
+  .err{color:var(--bad);font-size:13px;margin-top:8px;display:none}
+  .sales{list-style:none;margin:0;padding:0}
+  .sales li{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .sales li:last-child{border-bottom:none}
+  .sales .m{color:var(--muted);font-size:12px}
+  #login{max-width:380px;margin:52px auto 0}
+  #login .card{text-align:left}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(10px);background:var(--txt);color:var(--card);padding:11px 18px;border-radius:14px;font-size:13px;font-weight:600;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;max-width:90vw;box-shadow:var(--shadow)}
+  .toast.show{opacity:1;transform:translateX(-50%)}
+  #apiWrap{display:none}
+  footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12.5px}
+  footer b{color:var(--txt)}
+  .sep{height:1px;background:var(--line);margin:14px 0}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="login" style="display:none">
+  <header style="justify-content:center;margin-bottom:10px">
+    <div class="brand"><div class="logo">Z</div><div><h1>Panel Bot</h1><div class="sub">Masuk dengan password</div></div></div>
+  </header>
+  <div class="card">
+    <div id="apiWrap"><input id="api" type="text" placeholder="Alamat server bot (https://...)" autocomplete="off"></div>
+    <input id="pw" type="password" placeholder="Password panel" autocomplete="current-password">
+    <button class="btn-acc" id="btnLogin">Masuk</button>
+    <div class="err" id="loginErr"></div>
+    <div class="hint" style="margin-top:10px">Password diatur dengan /setpassword di chat pribadi bot.</div>
+  </div>
+  <footer>© Copyright by <b>Zan</b></footer>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+  <header>
+    <div class="brand">
+      <div class="logo">Z</div>
+      <div>
+        <h1>Panel Bot</h1>
+        <div class="sub" id="who">Memuat...</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span class="pill"><span class="dot" id="stDot"></span><span id="stText">-</span></span>
+      <button class="iconbtn" id="btnTheme" title="Ganti tema">🌙</button>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="title"><span>Alamat panel</span><span class="pill" id="addrPill">-</span></div>
+    <div class="addr">
+      <code id="addrCode">-</code>
+      <button class="iconbtn" id="btnCopy" style="width:auto">📋 Salin</button>
+    </div>
+    <div class="hint" id="addrHint"></div>
+  </div>
+
+  <div class="grid" style="margin-bottom:12px">
+    <div class="card kpi"><div class="lbl">Uptime</div><div class="val" id="kUptime">-</div><div class="hint" id="kVer">-</div></div>
+    <div class="card kpi"><div class="lbl">Pengguna</div><div class="val" id="kUsers">-</div><div class="hint" id="kGroups">-</div></div>
+    <div class="card kpi"><div class="lbl">Pendapatan</div><div class="val" id="kRev">-</div><div class="hint" id="kSales">-</div></div>
+    <div class="card kpi"><div class="lbl">Premium aktif</div><div class="val" id="kPrem">-</div><div class="hint" id="kPend">-</div></div>
+    <div class="card kpi"><div class="lbl">Sedekah</div><div class="val" id="kDon">-</div><div class="hint" id="kDonCnt">-</div></div>
+    <div class="card kpi"><div class="lbl">Perintah</div><div class="val" id="kCmds">-</div><div class="hint">total dijalankan</div></div>
+  </div>
+
+  <div class="card">
+    <div class="title">Server</div>
+    <div class="row"><span>RAM bot</span><b id="stRam">-</b></div>
+    <div class="bar"><b id="ramBar" style="width:0%"></b></div>
+    <div class="row" style="margin-top:10px"><span>RAM server</span><b id="stSysRam">-</b></div>
+    <div class="bar"><b id="sysRamBar" style="width:0%"></b></div>
+    <div class="row" style="margin-top:10px"><span>CPU (1 mnt)</span><b id="stCpu">-</b></div>
+    <div class="row"><span>Node.js</span><b id="stNode">-</b></div>
+    <div class="row"><span>Banner</span><b id="stBanner">-</b></div>
+  </div>
+
+  <div class="card" id="flyCard" style="display:none">
+    <div class="title">Fly.io</div>
+    <div class="row"><span>App</span><b id="flyApp">-</b></div>
+    <div class="row"><span>Region</span><b id="flyRegion">-</b></div>
+    <div class="row"><span>ID mesin</span><b id="flyMachine">-</b></div>
+  </div>
+
+  <div class="card">
+    <div class="title"><span>Firewall</span><span class="pill" id="fwPill">-</span></div>
+    <div class="row"><span>Level</span><b id="fwLevel">-</b></div>
+    <div class="row"><span>Sedang diblokir</span><b id="fwBlocked">-</b></div>
+    <div class="row"><span>Total pelanggaran</span><b id="fwHits">-</b></div>
+  </div>
+
+  <div class="card">
+    <div class="title"><span>Penjualan terakhir</span><span class="sub" id="salesTotal"></span></div>
+    <ul class="sales" id="salesList"><li><span class="m">Belum ada penjualan.</span></li></ul>
+  </div>
+
+  <div class="card">
+    <div class="title"><span>Mode perawatan</span><span class="pill" id="maintPill">-</span></div>
+    <input id="maintMsg" type="text" placeholder="Pesan untuk pengguna saat perawatan" maxlength="300">
+    <div class="grid2">
+      <button id="btnMaintOn">🔧 Aktifkan</button>
+      <button id="btnMaintOff">✅ Matikan</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="title">Kontrol bot</div>
+    <div class="grid2">
+      <button class="btn-acc" data-act="on">🟢 Aktifkan bot</button>
+      <button data-act="off">🔴 Standby</button>
+    </div>
+    <div class="grid2" style="margin-top:8px">
+      <button data-act="restart" data-confirm="Restart bot sekarang?">🔄 Restart</button>
+      <button class="btn-bad" data-act="shutdown" data-confirm="Matikan bot? Harus dinyalakan manual lewat panel hosting.">⛔ Shutdown</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="title">Broadcast ke semua pengguna</div>
+    <textarea id="bcText" placeholder="Tulis pengumuman..."></textarea>
+    <button class="btn-acc" id="btnBroadcast">📢 Kirim broadcast</button>
+    <div class="hint">Maksimal satu broadcast per menit.</div>
+  </div>
+
+  <div class="card">
+    <div class="title">Chat masuk terbaru</div>
+    <div class="feed" id="chatBox">Belum ada chat.</div>
+  </div>
+
+  <div class="card">
+    <div class="title">Error terakhir</div>
+    <div class="feed" id="logBox">Tidak ada error tercatat.</div>
+  </div>
+
+  <button id="btnLogout" style="margin-top:4px">Keluar</button>
+  <footer>
+    <div>Diperbarui otomatis tiap 5 detik</div>
+    <div style="margin-top:6px">© Copyright by <b>Zan</b></div>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var API = '', SESSION = '', timer = null, LAST_IP = '';
+
+  // ---- tema ----
+  function setTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    $('btnTheme').textContent = t === 'dark' ? '☀️' : '🌙';
+    try { localStorage.setItem('panelTheme', t); } catch (e) {}
+  }
+  var st = null; try { st = localStorage.getItem('panelTheme'); } catch (e) {}
+  setTheme(st === 'dark' ? 'dark' : 'light');
+  $('btnTheme').addEventListener('click', function () {
+    setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+
+  // ---- utilitas ----
+  function toast(msg) {
+    var t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove('show'); }, 2200);
+  }
+  function fmtBytes(b) { return b > 1073741824 ? (b / 1073741824).toFixed(1) + ' GB' : Math.round(b / 1048576) + ' MB'; }
+  function fmtDur(ms) {
+    var s = Math.floor(ms / 1000), d = Math.floor(s / 86400); s %= 86400;
+    var h = Math.floor(s / 3600); s %= 3600;
+    return d + 'h ' + h + 'j ' + Math.floor(s / 60) + 'm';
+  }
+  function rp(n) { return 'Rp' + Math.round(n || 0).toLocaleString('id-ID'); }
+  function jam(t) { return new Date(t).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false }); }
+  function setText(id, v) { $(id).textContent = v; }
+
+  // ---- jaringan ----
+  function api(path, opts) {
+    opts = opts || {};
+    var headers = { 'Content-Type': 'application/json' };
+    if (SESSION) headers['X-Panel-Session'] = SESSION;
+    return fetch(API + path, { method: opts.method || 'GET', headers: headers, body: opts.body ? JSON.stringify(opts.body) : undefined })
+      .then(function (r) {
+        if (r.status === 401) { var e = new Error('unauthorized'); e.code = 401; throw e; }
+        if (!r.ok) { var e2 = new Error('http ' + r.status); e2.code = r.status; throw e2; }
+        return r.json();
+      });
+  }
+
+  // ---- login ----
+  function showErr(msg) { var el = $('loginErr'); el.textContent = msg; el.style.display = 'block'; }
+  function doLogin() {
+    var pw = $('pw').value;
+    $('loginErr').style.display = 'none';
+    if (!pw) return showErr('Isi password dulu.');
+    var base = ($('api').value || '').trim().replace(/\/$/, '');
+    if (base) API = base;
+    api('/api/login', { method: 'POST', body: { password: pw } }).then(function (j) {
+      SESSION = j.session;
+      try { localStorage.setItem('panelSession', SESSION); if (base) localStorage.setItem('panelApi', base); } catch (e) {}
+      $('pw').value = '';
+      enterApp();
+    }).catch(function (e) {
+      if (e.code === 409) showErr('Password belum diatur. Kirim /setpassword KATA-SANDI ke bot di chat pribadi.');
+      else if (e.code === 429) showErr('Terlalu banyak percobaan. Coba lagi beberapa menit lagi.');
+      else if (e.code === 401) showErr('Password salah.');
+      else showErr('Tidak bisa terhubung ke bot. Cek alamatnya.');
+    });
+  }
+  function logout() {
+    api('/api/logout', { method: 'POST' }).catch(function () {});
+    SESSION = '';
+    try { localStorage.removeItem('panelSession'); } catch (e) {}
+    clearInterval(timer);
+    $('app').style.display = 'none';
+    $('login').style.display = 'block';
+  }
+
+  // ---- alamat panel: tampilkan IP/host yang sedang dipakai + IP publik server ----
+  function renderAddr(d) {
+    var here = location.origin && location.origin !== 'null' ? location.origin : (API || '-');
+    var pub = d.server && d.server.publicIp ? 'http://' + d.server.publicIp + ':' + d.server.port : '';
+    LAST_IP = here;
+    setText('addrCode', here);
+    if (pub) {
+      setText('addrPill', 'IP server: ' + d.server.publicIp);
+      setText('addrHint', 'Alamat IP publik server: ' + pub + ' (port harus sudah dibuka oleh penyedia hosting).');
+    } else {
+      setText('addrPill', 'Lokal');
+      setText('addrHint', 'IP publik server belum terbaca. Ketik /ipserver di bot.');
+    }
+  }
+
+  // ---- tampilan utama ----
+  function render(d) {
+    setText('who', d.botName ? '@' + d.botName : 'Terhubung');
+    $('stDot').className = 'dot ' + (d.active ? 'on' : 'off');
+    setText('stText', d.active ? 'Aktif' : 'Standby');
+    renderAddr(d);
+    setText('kUptime', fmtDur(d.uptimeMs));
+    setText('kVer', 'v' + d.version);
+    setText('kUsers', String(d.users));
+    setText('kGroups', d.groups + ' grup · ' + d.owners + ' owner');
+    var f = d.finance || {};
+    setText('kRev', rp(f.pendapatan));
+    setText('kSales', (f.penjualan || 0) + ' transaksi');
+    setText('kPrem', String(f.premiumAktif || 0));
+    setText('kPend', (f.menunggu || 0) + ' menunggu bayar');
+    setText('kDon', rp(f.sedekah));
+    setText('kDonCnt', (f.donatur || 0) + ' sedekah');
+    setText('kCmds', String(d.totalCmds));
+    setText('stRam', fmtBytes(d.ramBytes));
+    $('ramBar').style.width = Math.min(100, d.ramBytes / (512 * 1048576) * 100) + '%';
+    setText('stSysRam', fmtBytes(d.sysMemUsed) + ' / ' + fmtBytes(d.sysMemTotal));
+    $('sysRamBar').style.width = Math.min(100, d.sysMemUsed / d.sysMemTotal * 100) + '%';
+    setText('stCpu', d.cpuLoad.toFixed(2) + ' / ' + d.cpuCount + ' core');
+    setText('stNode', d.nodeVersion);
+    setText('stBanner', d.banners.found + ' / ' + d.banners.total);
+    var fw = d.firewall;
+    $('fwPill').textContent = fw.on ? 'Aktif' : 'Mati';
+    setText('fwLevel', fw.level);
+    setText('fwBlocked', String(fw.blocked));
+    setText('fwHits', String(fw.hits));
+    if (d.fly) {
+      $('flyCard').style.display = '';
+      setText('flyApp', d.fly.app);
+      setText('flyRegion', d.fly.region || '-');
+      setText('flyMachine', (d.fly.machine || '-').slice(0, 14));
+    } else { $('flyCard').style.display = 'none'; }
+    // penjualan
+    var list = $('salesList'); list.textContent = '';
+    setText('salesTotal', (d.recentSales || []).length ? 'terbaru' : '');
+    if (!d.recentSales || !d.recentSales.length) {
+      var li0 = document.createElement('li'), m0 = document.createElement('span');
+      m0.className = 'm'; m0.textContent = 'Belum ada penjualan.'; li0.appendChild(m0); list.appendChild(li0);
+    } else {
+      d.recentSales.forEach(function (x) {
+        var li = document.createElement('li'), a = document.createElement('div'), b = document.createElement('div');
+        b.className = 'm';
+        a.textContent = (x.plan || 'Premium') + ' · ' + rp(x.price);
+        b.textContent = jam(x.t) + ' · user ' + x.user + ' · ' + (x.kode || '');
+        a.appendChild(b); li.appendChild(a); list.appendChild(li);
+      });
+    }
+    // perawatan
+    $('maintPill').textContent = d.maint && d.maint.on ? 'Aktif' : 'Mati';
+    if (d.maint && d.maint.msg && !$('maintMsg').value) $('maintMsg').placeholder = d.maint.msg;
+    // chat & error
+    var cb = $('chatBox'); cb.textContent = '';
+    if (d.chats && d.chats.length) {
+      d.chats.forEach(function (c) { cb.appendChild(document.createTextNode(c.time + '  ' + c.name + (c.where ? ' ' + c.where : '') + ': ' + c.text + '\n')); });
+    } else cb.textContent = 'Belum ada chat.';
+    $('logBox').textContent = d.errors && d.errors.length ? d.errors.join('\n') : 'Tidak ada error tercatat.';
+  }
+
+  function refresh() {
+    api('/api/status').then(render).catch(function (e) {
+      if (e.code === 401) { logout(); toast('Sesi berakhir, masuk lagi.'); }
+    });
+  }
+  function act(action, extra) {
+    var body = Object.assign({ action: action }, extra || {});
+    return api('/api/action', { method: 'POST', body: body }).then(function () {
+      toast('Perintah terkirim'); setTimeout(refresh, 700);
+    }).catch(function (e) { toast(e.code === 429 ? 'Terlalu cepat, tunggu sebentar.' : 'Gagal mengirim perintah.'); });
+  }
+  function enterApp() {
+    $('login').style.display = 'none';
+    $('app').style.display = 'block';
+    refresh();
+    clearInterval(timer);
+    timer = setInterval(refresh, 5000);
+  }
+
+  // ---- event ----
+  $('btnLogin').addEventListener('click', doLogin);
+  $('pw').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
+  $('btnLogout').addEventListener('click', logout);
+  $('btnCopy').addEventListener('click', function () {
+    var t = LAST_IP || location.origin;
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function () { toast('Alamat disalin'); }, function () { toast(t); });
+    else toast(t);
+  });
+  $('btnMaintOn').addEventListener('click', function () { act('maint', { on: true, msg: $('maintMsg').value.trim() }); });
+  $('btnMaintOff').addEventListener('click', function () { act('maint', { on: false }); });
+  $('btnBroadcast').addEventListener('click', function () {
+    var text = $('bcText').value.trim();
+    if (!text) return toast('Isi pesannya dulu');
+    if (!confirm('Kirim broadcast ini ke semua pengguna?')) return;
+    api('/api/action', { method: 'POST', body: { action: 'broadcast', text: text } }).then(function (r) {
+      toast('Terkirim ke ' + (r.ok || 0) + ', gagal ' + (r.fail || 0)); $('bcText').value = '';
+    }).catch(function (e) { toast(e.code === 429 ? 'Tunggu 1 menit antar broadcast.' : 'Gagal mengirim broadcast.'); });
+  });
+  document.querySelectorAll('[data-act]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (b.getAttribute('data-confirm') && !confirm(b.getAttribute('data-confirm'))) return;
+      act(b.getAttribute('data-act'));
+    });
+  });
+
+  // ---- mulai ----
+  var qs = new URLSearchParams(location.search);
+  if (qs.get('api')) API = qs.get('api').replace(/\/$/, '');
+  try { if (!API && localStorage.getItem('panelApi')) API = localStorage.getItem('panelApi'); } catch (e) {}
+  if (/netlify\.app$/i.test(location.hostname || '') || location.protocol === 'file:') $('apiWrap').style.display = 'block';
+  try { SESSION = localStorage.getItem('panelSession') || ''; } catch (e) {}
+  if (SESSION) enterApp(); else $('login').style.display = 'block';
+})();
+</script>
+</body>
+</html>
